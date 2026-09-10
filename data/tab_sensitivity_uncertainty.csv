@@ -1,0 +1,7 @@
+Site,"P(pass all tiers, MC ±10%)",Site6 weighted-sum rank mode,P(rank 1 under ±20% weights)
+Site 1,1.0,1,0.0
+Site 2,1.0,,0.0
+Site 3,0.865,,0.021
+Site 4,1.0,,0.0
+Site 5,0.66,,0.0
+Site 6,0.0,,0.979

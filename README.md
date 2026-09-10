@@ -18,18 +18,22 @@ the main manuscript and supplementary material.
 ├── LICENSE                         (MIT)
 ├── requirements.txt                (Python dependencies)
 ├── code/
-│   ├── fig_end2end_workflow.py     (Fig. end2end_workflow)
-│   ├── fig_mcdm_comparison.py      (Fig. mcdm_comparison)
-│   └── fig_validation_concordance.py  (Fig. validation_concordance)
+│   ├── fig_end2end_workflow.py        (Fig. end2end_workflow)
+│   ├── fig_mcdm_comparison.py         (Fig. mcdm_comparison)
+│   ├── fig_validation_concordance.py  (Fig. validation_concordance)
+│   └── fig_sensitivity_uncertainty.py (Fig. sensitivity_uncertainty)
 ├── prompts/
 │   ├── stage1_clustering_prompt.txt   (LLM prompt for thematic clustering)
 │   └── stage2_extraction_prompt.txt   (LLM prompt for full-text extraction)
 ├── data/
-│   ├── tab_mcdm_comparison.csv     (MCDM ranking table)
-│   ├── tab_validation_concordance.csv (per-site WFSSF tier status)
-│   └── tab_case_validation.csv     (alias of validation_concordance)
+│   ├── tab_mcdm_comparison.csv          (MCDM ranking table)
+│   ├── tab_validation_concordance.csv   (per-site WFSSF tier status)
+│   ├── tab_case_validation.csv          (alias of validation_concordance)
+│   └── tab_sensitivity_uncertainty.csv  (robustness-check summary)
 ├── docs/
 │   └── supplementary_material.tex  (S1-S3 controlled vocab, mapping rules)
+├── results/
+│   └── fig_sensitivity_uncertainty.*  (example rendered output)
 └── tool/
     └── wind_farm_suitability_tool.html  (Interactive HTML/JS tool)
 ```
@@ -49,9 +53,10 @@ output to the current working directory.
 
 ```bash
 cd code
-python3 fig_end2end_workflow.py        # -> fig_end2end_workflow.png/pdf
-python3 fig_mcdm_comparison.py         # -> fig_mcdm_comparison.png/pdf
-python3 fig_validation_concordance.py # -> fig_validation_concordance.png/pdf
+python3 fig_end2end_workflow.py          # -> fig_end2end_workflow.png/pdf
+python3 fig_mcdm_comparison.py           # -> fig_mcdm_comparison.png/pdf
+python3 fig_validation_concordance.py    # -> fig_validation_concordance.png/pdf
+python3 fig_sensitivity_uncertainty.py   # -> fig_sensitivity_uncertainty.png/pdf
 ```
 
 ### 3. Reproduce tables
