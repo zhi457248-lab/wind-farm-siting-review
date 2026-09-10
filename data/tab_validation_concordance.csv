@@ -1,0 +1,7 @@
+Site,T1,T2,T3,T4,verdict,ground_truth,concordant
+Site 1,True,True,True,True,Pass all tiers,Pass all tiers,True
+Site 2,True,True,True,True,Pass all tiers,Pass all tiers,True
+Site 3,True,True,True,True,Pass all tiers,Pass all tiers,True
+Site 4,True,True,True,True,Pass all tiers,Pass all tiers,True
+Site 5,True,True,True,True,Pass all tiers,Pass all tiers,True
+Site 6,True,False,,,Reject T2,Reject T2,True

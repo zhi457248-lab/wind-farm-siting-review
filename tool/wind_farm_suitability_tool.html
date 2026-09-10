@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Wind Farm Suitability Tool v2.0</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI",system-ui,sans-serif}
+body{background:#f0f4f9;color:#1a1a2e;transition:.3s}
+body.dark{background:#0d1117;color:#e6edf3}
+header{background:linear-gradient(135deg,#1a3a5c,#2E75B6);color:#fff;padding:16px 28px;display:flex;align-items:center;justify-content:space-between}
+header h1{font-size:1.1rem;font-weight:700}
+header p{font-size:.75rem;opacity:.75;margin-top:2px}
+.hdr-right{display:flex;gap:8px;align-items:center}
+.hdr-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;padding:6px 14px;border-radius:20px;cursor:pointer;font-size:.78rem;transition:.2s}
+.hdr-btn:hover{background:rgba(255,255,255,.28)}
+.layout{display:grid;grid-template-columns:340px 1fr;gap:16px;padding:16px;max-width:1500px;margin:0 auto}
+.sidebar{display:flex;flex-direction:column;gap:12px}
+.card{background:#fff;border-radius:16px;padding:16px 18px;box-shadow:0 2px 8px rgba(0,0,0,.07)}
+body.dark .card{background:#161b22;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.card-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888;margin-bottom:10px}
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.type-btn{padding:9px 6px;border:1.5px solid #ddd;border-radius:10px;cursor:pointer;font-size:.82rem;background:#fff;color:#555;transition:.15s;font-weight:500;text-align:center}
+body.dark .type-btn{background:#21262d;border-color:#30363d;color:#aaa}
+.type-btn.active{border-color:#2E75B6;background:#EBF3FB;color:#2E75B6;font-weight:700}
+body.dark .type-btn.active{background:#1c3652;color:#79b8ff}
+.w-btns{display:flex;flex-direction:column;gap:5px}
+.w-btn{padding:8px 12px;border:1.5px solid #ddd;border-radius:9px;cursor:pointer;font-size:.8rem;background:#fff;color:#555;transition:.15s;text-align:left}
+body.dark .w-btn{background:#21262d;border-color:#30363d;color:#aaa}
+.w-btn.active{border-color:#00703C;background:#D5F5E3;color:#00703C;font-weight:600}
+body.dark .w-btn.active{background:#0d2e1c;color:#3fb950}
+.w-btn small{display:block;font-size:.7rem;opacity:.6;margin-top:1px}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.stat{background:#F6F8FA;border-radius:9px;padding:8px;text-align:center}
+body.dark .stat{background:#21262d}
+.stat-n{font-size:1.4rem;font-weight:700;color:#2E75B6}
+body.dark .stat-n{color:#79b8ff}
+.stat-l{font-size:.68rem;color:#888;margin-top:1px}
+.act-btns{display:flex;flex-direction:column;gap:6px}
+.act-btn{padding:10px;border:none;border-radius:10px;cursor:pointer;font-size:.83rem;font-weight:600;transition:.15s}
+.act-btn.primary{background:#2E75B6;color:#fff}
+.act-btn.primary:hover{background:#1a4f8a}
+.act-btn.secondary{background:#00703C;color:#fff}
+.act-btn.secondary:hover{background:#004d28}
+.act-btn.danger{background:#F0F2F5;color:#666}
+body.dark .act-btn.danger{background:#21262d;color:#aaa}
+.act-btn.danger:hover{background:#e0e4ea}
+.main-panel{display:flex;flex-direction:column;gap:14px}
+.top-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.search-wrap{position:relative;flex:1;min-width:160px}
+.search-wrap input{width:100%;padding:8px 8px 8px 32px;border:1.5px solid #ddd;border-radius:9px;font-size:.83rem;background:#fff;outline:none;transition:.15s}
+body.dark .search-wrap input{background:#21262d;border-color:#30363d;color:#e6edf3}
+.search-wrap input:focus{border-color:#2E75B6}
+.si{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:#aaa;font-size:.85rem}
+.sort-sel{padding:8px 10px;border:1.5px solid #ddd;border-radius:9px;font-size:.8rem;background:#fff;cursor:pointer;color:#555}
+body.dark .sort-sel{background:#21262d;border-color:#30363d;color:#aaa}
+.cat-pills{display:flex;gap:5px;flex-wrap:wrap}
+.cat-pill{padding:4px 10px;border-radius:20px;font-size:.72rem;cursor:pointer;border:1.5px solid;font-weight:600;transition:.15s;user-select:none}
+.cat-pill.off{opacity:.35}
+.crit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:10px}
+.crit-card{background:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 1px 4px rgba(0,0,0,.07);border-left:4px solid var(--cc);transition:box-shadow .15s}
+body.dark .crit-card{background:#161b22}
+.crit-card:hover{box-shadow:0 4px 14px rgba(0,0,0,.13)}
+.ch{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:6px}
+.cn{font-size:.88rem;font-weight:700;color:#1a1a2e;line-height:1.25}
+body.dark .cn{color:#e6edf3}
+.cn-zh{font-size:.75rem;color:#888;margin-top:1px}
+.freq-pill{background:#F0F2F5;border-radius:10px;padding:2px 8px;font-size:.7rem;color:#555;white-space:nowrap;flex-shrink:0}
+body.dark .freq-pill{background:#21262d;color:#aaa}
+.freq-pill strong{color:#2E75B6}
+body.dark .freq-pill strong{color:#79b8ff}
+.ct{display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap;align-items:center}
+.ct-tag{font-size:.68rem;padding:2px 7px;border-radius:6px}
+.apply-t{font-size:.66rem;padding:2px 6px;border-radius:5px;font-weight:700}
+.on-t{background:#DBEAFE;color:#1D4ED8}
+.off-t{background:#D1FAE5;color:#065F46}
+.slider-row{display:flex;align-items:center;gap:8px}
+.slider-row input[type=range]{flex:1;accent-color:var(--cc);cursor:pointer}
+.sv{min-width:22px;text-align:center;font-size:.95rem;font-weight:800;color:var(--cc)}
+.w-display{font-size:.68rem;color:#aaa;margin-top:3px}
+.results{background:#fff;border-radius:16px;padding:18px 20px;box-shadow:0 2px 8px rgba(0,0,0,.07)}
+body.dark .results{background:#161b22}
+.results-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.score-hero{background:linear-gradient(135deg,#1a3a5c,#2E75B6);border-radius:14px;padding:20px;color:#fff;text-align:center;margin-bottom:14px}
+.score-num{font-size:56px;font-weight:800;line-height:1}
+.score-grade{font-size:1.1rem;margin-top:6px;opacity:.9}
+.score-sub{font-size:.75rem;opacity:.65;margin-top:4px}
+.cat-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.cbl{font-size:.75rem;font-weight:600;width:90px;flex-shrink:0}
+.cbb{flex:1;height:8px;background:#F0F2F5;border-radius:4px;overflow:hidden}
+body.dark .cbb{background:#21262d}
+.cbf{height:100%;border-radius:4px;transition:width .4s}
+.cbv{font-size:.75rem;font-weight:700;color:#444;min-width:34px;text-align:right}
+body.dark .cbv{color:#aaa}
+#radarWrap{position:relative;height:210px;margin-top:10px}
+.top-table{width:100%;font-size:.8rem;border-collapse:collapse}
+.top-table th{text-align:left;color:#888;font-weight:600;padding:5px 6px;border-bottom:1.5px solid #F0F2F5;font-size:.72rem;text-transform:uppercase}
+body.dark .top-table th{border-color:#21262d}
+.top-table td{padding:5px 6px;border-bottom:.5px solid #F8F8FA}
+body.dark .top-table td{border-color:#21262d}
+.bar-cell{display:flex;align-items:center;gap:6px}
+.mini-bar{height:5px;border-radius:3px;min-width:2px;transition:width .3s}
+.hist-box{max-height:140px;overflow-y:auto;margin-top:8px}
+.hist-item{padding:7px 0;border-bottom:.5px solid #F0F2F5;font-size:.78rem;display:flex;justify-content:space-between;align-items:center}
+body.dark .hist-item{border-color:#21262d}
+.grade-pill{padding:2px 8px;border-radius:8px;font-size:.7rem;font-weight:700}
+.grade-A{background:#D1FAE5;color:#065F46}
+.grade-B{background:#DBEAFE;color:#1D4ED8}
+.grade-C{background:#FEF3C7;color:#92400E}
+.grade-D{background:#FECACA;color:#991B1B}
+@media(max-width:960px){.layout{grid-template-columns:1fr}.results-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>🌬️ Wind Farm Suitability Tool v2.0</h1>
+    <p>Literature-driven MCDA · 64 indicators · Based on the Stage 2 nested
+    77-study full-text subset (2001–May 2026) of the systematic review.
+    Core indicators match Figure 6 / Table 3; a small number of additional
+    indicators (e.g., Military zone) are included for exploratory scoring.</p>
+  </div>
+  <div class="hdr-right">
+    <button class="hdr-btn" onclick="toggleDark()">🌙 Dark mode</button>
+    <button class="hdr-btn" onclick="exportCSV()">📥 CSV</button>
+    <button class="hdr-btn" onclick="exportPDF()">📄 PDF</button>
+  </div>
+</header>
+
+<div class="layout">
+
+<!-- ── Sidebar ─────────────────────────────────────────────── -->
+<div class="sidebar">
+  <div class="card">
+    <div class="card-title">Project type</div>
+    <div class="type-grid">
+      <button class="type-btn active" data-t="onshore">⛰ Onshore<br><small style="font-size:.68rem;opacity:.6">陆上风电</small></button>
+      <button class="type-btn" data-t="offshore">🌊 Offshore<br><small style="font-size:.68rem;opacity:.6">海上风电</small></button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Weight mode</div>
+    <div class="w-btns">
+      <button class="w-btn" data-w="freq">📚 Literature frequency
+        <small>score × # papers in 77 studies</small></button>
+      <button class="w-btn active" data-w="equal">⚖ Equal weight
+        <small>all indicators weight = 1</small></button>
+      <button class="w-btn" data-w="ahp">🎯 AHP weights
+        <small>pre-calibrated from literature</small></button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Overview</div>
+    <div class="stat-grid">
+      <div class="stat"><div class="stat-n" id="st-shown">—</div><div class="stat-l">Criteria</div></div>
+      <div class="stat"><div class="stat-n" id="st-scored">0</div><div class="stat-l">Scored</div></div>
+      <div class="stat"><div class="stat-n" id="st-score">—</div><div class="stat-l">Score</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Actions</div>
+    <div class="act-btns">
+      <button class="act-btn primary" onclick="calculateScore()">⚡ Calculate score</button>
+      <button class="act-btn secondary" onclick="exportCSV()">📥 Export CSV</button>
+      <button class="act-btn danger" onclick="resetAll()">↺ Reset all sliders</button>
+    </div>
+    <div class="card-title" style="margin-top:12px">History</div>
+    <div class="hist-box" id="histBox"></div>
+  </div>
+</div>
+
+<!-- ── Main ─────────────────────────────────────────────────── -->
+<div class="main-panel">
+
+  <div class="card" style="padding:10px 14px">
+    <div class="top-bar">
+      <div class="search-wrap">
+        <span class="si">🔍</span>
+        <input type="text" id="search" placeholder="Search indicator / 搜索指标...">
+      </div>
+      <select class="sort-sel" id="sortSel">
+        <option value="freq">Sort: Frequency ↓</option>
+        <option value="alpha">Sort: A→Z</option>
+        <option value="score">Sort: Score ↓</option>
+        <option value="cat">Sort: Category</option>
+      </select>
+    </div>
+    <div class="cat-pills" id="catPills" style="margin-top:8px"></div>
+  </div>
+
+  <div class="crit-grid" id="critGrid"></div>
+
+  <div class="results">
+    <div class="score-hero">
+      <div style="font-size:.8rem;opacity:.75;margin-bottom:6px">Composite suitability score</div>
+      <div class="score-num" id="scoreNum">—</div>
+      <div class="score-grade" id="scoreGrade">Rate criteria above and click Calculate</div>
+      <div class="score-sub" id="scoreSub"></div>
+    </div>
+    <div class="results-grid">
+      <div>
+        <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#888;margin-bottom:8px">Category scores</div>
+        <div id="catScores"></div>
+        <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#888;margin-top:14px;margin-bottom:4px">Radar chart</div>
+        <div id="radarWrap"><canvas id="radarC" role="img" aria-label="Radar chart of category scores"></canvas></div>
+      </div>
+      <div>
+        <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#888;margin-bottom:8px">Top scored criteria</div>
+        <table class="top-table">
+          <thead><tr><th>Criterion</th><th>Cat.</th><th>Score</th><th>Weighted</th></tr></thead>
+          <tbody id="topTbody"></tbody>
+        </table>
+        <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#888;margin-top:14px;margin-bottom:4px">Recommendation</div>
+        <div id="recText" style="font-size:.82rem;line-height:1.7;color:#555;padding:10px;background:#F6F8FA;border-radius:10px">
+          Rate criteria using sliders and click "Calculate score" to get analysis.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+const DB=[{"id":"windSpeed","indicator":"Wind speed","indicator_zh":"风速","category":"Technical","sub_category":"Wind Resource","onshore":1,"offshore":1,"frequency":49},{"id":"windPowerDensity","indicator":"Wind power density","indicator_zh":"风功率密度","category":"Technical","sub_category":"Wind Resource","onshore":1,"offshore":1,"frequency":11},{"id":"windStability","indicator":"Wind stability","indicator_zh":"风能稳定性","category":"Technical","sub_category":"Wind Resource","onshore":1,"offshore":1,"frequency":5},{"id":"turbulenceIntensity","indicator":"Turbulence intensity","indicator_zh":"湍流强度","category":"Technical","sub_category":"Wind Resource","onshore":1,"offshore":1,"frequency":4},{"id":"windDirection","indicator":"Wind direction","indicator_zh":"风向","category":"Technical","sub_category":"Wind Resource","onshore":1,"offshore":1,"frequency":3},{"id":"annualEnergyProd","indicator":"Annual energy production","indicator_zh":"年发电量","category":"Technical","sub_category":"Wind Resource","onshore":1,"offshore":1,"frequency":5},{"id":"capacityFactor","indicator":"Capacity factor","indicator_zh":"容量因子","category":"Technical","sub_category":"Wind Resource","onshore":1,"offshore":1,"frequency":3},{"id":"wakeEffect","indicator":"Wake effect","indicator_zh":"尾流效应","category":"Technical","sub_category":"Wind Resource","onshore":1,"offshore":1,"frequency":3},{"id":"waveHeight","indicator":"Wave height","indicator_zh":"波高","category":"Technical","sub_category":"Marine Condition","onshore":0,"offshore":1,"frequency":3},{"id":"oceanCurrent","indicator":"Ocean current velocity","indicator_zh":"海流速度","category":"Technical","sub_category":"Marine Condition","onshore":0,"offshore":1,"frequency":2},{"id":"windFarmCapacity","indicator":"Wind farm capacity","indicator_zh":"风电场装机容量","category":"Technical","sub_category":"Wind Resource","onshore":1,"offshore":1,"frequency":2},{"id":"windShear","indicator":"Wind shear","indicator_zh":"风切变","category":"Technical","sub_category":"Wind Resource","onshore":1,"offshore":1,"frequency":2},{"id":"windFarmExtensibility","indicator":"Wind farm extensibility","indicator_zh":"风电场扩展潜力","category":"Technical","sub_category":"Wind Resource","onshore":1,"offshore":1,"frequency":2},{"id":"slope","indicator":"Slope","indicator_zh":"坡度","category":"Topographic","sub_category":"Terrain","onshore":1,"offshore":0,"frequency":18},{"id":"elevation","indicator":"Elevation","indicator_zh":"海拔","category":"Topographic","sub_category":"Terrain","onshore":1,"offshore":0,"frequency":7},{"id":"landUseCover","indicator":"Land use/cover","indicator_zh":"土地利用","category":"Topographic","sub_category":"Land Cover","onshore":1,"offshore":0,"frequency":9},{"id":"waterDepth","indicator":"Water depth","indicator_zh":"水深","category":"Topographic","sub_category":"Marine Condition","onshore":0,"offshore":1,"frequency":14},{"id":"offshoreDistance","indicator":"Offshore distance","indicator_zh":"离岸距离","category":"Topographic","sub_category":"Marine Location","onshore":0,"offshore":1,"frequency":15},{"id":"seabedGeology","indicator":"Seabed geology","indicator_zh":"海底地质","category":"Topographic","sub_category":"Marine Condition","onshore":0,"offshore":1,"frequency":3},{"id":"aspect","indicator":"Aspect","indicator_zh":"坡向","category":"Topographic","sub_category":"Terrain","onshore":1,"offshore":0,"frequency":2},{"id":"terrainDEM","indicator":"Terrain/DEM","indicator_zh":"地形DEM","category":"Topographic","sub_category":"Terrain","onshore":1,"offshore":0,"frequency":3},{"id":"sedimentology","indicator":"Sedimentology","indicator_zh":"沉积学","category":"Topographic","sub_category":"Marine Condition","onshore":0,"offshore":1,"frequency":2},{"id":"zoneArea","indicator":"Zone area","indicator_zh":"区域面积","category":"Topographic","sub_category":"Terrain","onshore":1,"offshore":1,"frequency":2},{"id":"spatialConstraint","indicator":"Spatial constraint","indicator_zh":"空间约束","category":"Topographic","sub_category":"Terrain","onshore":0,"offshore":1,"frequency":3},{"id":"distanceToGrid","indicator":"Distance to grid","indicator_zh":"距电网距离","category":"Infrastructure","sub_category":"Power System","onshore":1,"offshore":1,"frequency":26},{"id":"distanceToRoad","indicator":"Distance to road","indicator_zh":"距道路距离","category":"Infrastructure","sub_category":"Transportation","onshore":1,"offshore":0,"frequency":21},{"id":"distanceToPort","indicator":"Distance to port","indicator_zh":"距港口距离","category":"Infrastructure","sub_category":"Transportation","onshore":0,"offshore":1,"frequency":5},{"id":"distanceToSubstation","indicator":"Distance to substation","indicator_zh":"距变电站距离","category":"Infrastructure","sub_category":"Power System","onshore":1,"offshore":1,"frequency":4},{"id":"accessibility","indicator":"Accessibility","indicator_zh":"可达性","category":"Infrastructure","sub_category":"Transportation","onshore":1,"offshore":1,"frequency":5},{"id":"logistics","indicator":"Logistics","indicator_zh":"物流条件","category":"Infrastructure","sub_category":"Transportation","onshore":0,"offshore":1,"frequency":3},{"id":"windFarmSize","indicator":"Wind farm size","indicator_zh":"风电场规模","category":"Infrastructure","sub_category":"Power System","onshore":1,"offshore":1,"frequency":2},{"id":"existingWF","indicator":"Existing wind farm location","indicator_zh":"已有风电场位置","category":"Infrastructure","sub_category":"Power System","onshore":1,"offshore":1,"frequency":3},{"id":"cableCost","indicator":"Cable cost","indicator_zh":"输电电缆成本","category":"Infrastructure","sub_category":"Power System","onshore":0,"offshore":1,"frequency":2},{"id":"distanceToUrbanArea","indicator":"Distance to urban area","indicator_zh":"距城区距离","category":"Infrastructure","sub_category":"Settlement","onshore":1,"offshore":1,"frequency":6},{"id":"investmentCost","indicator":"Investment cost","indicator_zh":"投资成本","category":"Economic","sub_category":"Cost","onshore":1,"offshore":1,"frequency":8},{"id":"oMCost","indicator":"O&M cost","indicator_zh":"运维成本","category":"Economic","sub_category":"Cost","onshore":1,"offshore":1,"frequency":4},{"id":"lcoe","indicator":"LCOE","indicator_zh":"平准化度电成本","category":"Economic","sub_category":"Cost","onshore":1,"offshore":1,"frequency":3},{"id":"npv","indicator":"NPV","indicator_zh":"净现值","category":"Economic","sub_category":"Return","onshore":1,"offshore":1,"frequency":3},{"id":"paybackPeriod","indicator":"Payback period","indicator_zh":"投资回收期","category":"Economic","sub_category":"Return","onshore":1,"offshore":1,"frequency":3},{"id":"costBenefitRatio","indicator":"Cost-benefit ratio","indicator_zh":"成本收益比","category":"Economic","sub_category":"Return","onshore":1,"offshore":1,"frequency":3},{"id":"feedInTariff","indicator":"Feed-in tariff","indicator_zh":"上网电价","category":"Economic","sub_category":"Return","onshore":1,"offshore":1,"frequency":3},{"id":"roi","indicator":"Return on investment","indicator_zh":"投资回报率","category":"Economic","sub_category":"Return","onshore":1,"offshore":1,"frequency":2},{"id":"capex","indicator":"CAPEX","indicator_zh":"资本支出","category":"Economic","sub_category":"Cost","onshore":1,"offshore":1,"frequency":2},{"id":"investmentIncentive","indicator":"Investment incentive","indicator_zh":"投资激励","category":"Economic","sub_category":"Return","onshore":1,"offshore":1,"frequency":2},{"id":"landCost","indicator":"Land cost","indicator_zh":"土地成本","category":"Economic","sub_category":"Cost","onshore":1,"offshore":0,"frequency":2},{"id":"distProtectedArea","indicator":"Distance to protected area","indicator_zh":"距保护区距离","category":"Environmental","sub_category":"Ecological Protection","onshore":1,"offshore":1,"frequency":12},{"id":"birdImpact","indicator":"Bird impact","indicator_zh":"鸟类影响","category":"Environmental","sub_category":"Wildlife","onshore":1,"offshore":1,"frequency":6},{"id":"marineEcologicalImpact","indicator":"Marine ecological impact","indicator_zh":"海洋生态影响","category":"Environmental","sub_category":"Marine Ecology","onshore":0,"offshore":1,"frequency":5},{"id":"noisePollution","indicator":"Noise pollution","indicator_zh":"噪音污染","category":"Environmental","sub_category":"Pollution","onshore":1,"offshore":1,"frequency":4},{"id":"ecologicalImpact","indicator":"Ecological impact","indicator_zh":"生态影响","category":"Environmental","sub_category":"Ecological Protection","onshore":1,"offshore":1,"frequency":4},{"id":"landscapeValue","indicator":"Landscape value","indicator_zh":"景观价值","category":"Environmental","sub_category":"Pollution","onshore":1,"offshore":1,"frequency":3},{"id":"ecosystemServices","indicator":"Ecosystem services","indicator_zh":"生态系统服务","category":"Environmental","sub_category":"Ecological Protection","onshore":1,"offshore":1,"frequency":2},{"id":"distResidentialArea","indicator":"Distance to residential area","indicator_zh":"距居民区距离","category":"Social","sub_category":"Settlement","onshore":1,"offshore":1,"frequency":8},{"id":"publicAcceptance","indicator":"Public acceptance","indicator_zh":"公众接受度","category":"Social","sub_category":"Community","onshore":1,"offshore":1,"frequency":7},{"id":"employment","indicator":"Employment","indicator_zh":"就业机会","category":"Social","sub_category":"Socioeconomic","onshore":1,"offshore":1,"frequency":4},{"id":"distanceToAirport","indicator":"Distance to airport","indicator_zh":"距机场距离","category":"Social","sub_category":"Community","onshore":1,"offshore":1,"frequency":3},{"id":"fisheryImpact","indicator":"Fishery impact","indicator_zh":"渔业影响","category":"Social","sub_category":"Maritime Activity","onshore":0,"offshore":1,"frequency":3},{"id":"shippingDensity","indicator":"Shipping density","indicator_zh":"航运密度","category":"Social","sub_category":"Maritime Activity","onshore":0,"offshore":1,"frequency":3},{"id":"populationDensity","indicator":"Population density","indicator_zh":"人口密度","category":"Social","sub_category":"Socioeconomic","onshore":1,"offshore":1,"frequency":2},{"id":"culturalFactors","indicator":"Cultural factors","indicator_zh":"文化因素","category":"Social","sub_category":"Community","onshore":1,"offshore":1,"frequency":2},{"id":"extremeWeather","indicator":"Extreme weather","indicator_zh":"极端天气","category":"Safety/Risk","sub_category":"Climate Risk","onshore":1,"offshore":1,"frequency":4},{"id":"earthquakeRisk","indicator":"Earthquake risk","indicator_zh":"地震风险","category":"Safety/Risk","sub_category":"Geological Risk","onshore":1,"offshore":1,"frequency":3},{"id":"distanceToFault","indicator":"Distance to fault","indicator_zh":"距断层距离","category":"Safety/Risk","sub_category":"Geological Risk","onshore":1,"offshore":0,"frequency":3},{"id":"militaryZone","indicator":"Military zone","indicator_zh":"军事禁区","category":"Safety/Risk","sub_category":"Restricted Zone","onshore":1,"offshore":1,"frequency":2}];
+
+const CC={Technical:'#2E75B6',Topographic:'#548235',Infrastructure:'#00703C',Economic:'#C55A11',Environmental:'#70AD47',Social:'#7030A0','Safety/Risk':'#C00000'};
+const CL={Technical:'#D6E4F0',Topographic:'#E2EFDA',Infrastructure:'#D5F5E3',Economic:'#FCE4D6',Environmental:'#E9F3DC',Social:'#EAD1FA','Safety/Risk':'#FADBD8'};
+const AHP_W={Technical:.28,Topographic:.18,Infrastructure:.22,Economic:.08,Environmental:.12,Social:.08,'Safety/Risk':.04};
+
+let projType='onshore',wMode='equal',scores={},activeCats=new Set(Object.keys(CC)),search='',sortM='freq',radarChart=null;
+
+// ─── Init category pills ─────────────────────────────────────────────────────
+const pillsEl=document.getElementById('catPills');
+Object.entries(CC).forEach(([cat,col])=>{
+  const p=document.createElement('span');
+  p.className='cat-pill';
+  p.textContent=cat;
+  p.style.borderColor=col;p.style.color=col;p.style.background=CL[cat];
+  p.dataset.cat=cat;
+  p.addEventListener('click',()=>{
+    if(activeCats.has(cat)){activeCats.delete(cat);p.classList.add('off');}
+    else{activeCats.add(cat);p.classList.remove('off');}
+    render();
+  });
+  pillsEl.appendChild(p);
+});
+
+// ─── Type buttons ────────────────────────────────────────────────────────────
+document.querySelectorAll('.type-btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.type-btn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  projType=b.dataset.t;
+  render();
+}));
+
+// ─── Weight buttons ──────────────────────────────────────────────────────────
+document.querySelectorAll('.w-btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.w-btn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  wMode=b.dataset.w;
+  render();
+}));
+
+// ─── Sort / Search ───────────────────────────────────────────────────────────
+document.getElementById('search').addEventListener('input',e=>{search=e.target.value.toLowerCase();render();});
+document.getElementById('sortSel').addEventListener('change',e=>{sortM=e.target.value;render();});
+
+function getFiltered(){
+  return DB.filter(d=>{
+    if(projType==='onshore'&&!d.onshore)return false;
+    if(projType==='offshore'&&!d.offshore)return false;
+    if(!activeCats.has(d.category))return false;
+    if(search&&!d.indicator.toLowerCase().includes(search)&&!d.indicator_zh.includes(search)&&!d.sub_category.toLowerCase().includes(search))return false;
+    return true;
+  });
+}
+
+function getSorted(arr){
+  if(sortM==='freq')return[...arr].sort((a,b)=>b.frequency-a.frequency);
+  if(sortM==='alpha')return[...arr].sort((a,b)=>a.indicator.localeCompare(b.indicator));
+  if(sortM==='score')return[...arr].sort((a,b)=>(scores[b.id]||0)-(scores[a.id]||0));
+  if(sortM==='cat')return[...arr].sort((a,b)=>a.category.localeCompare(b.category)||b.frequency-a.frequency);
+  return arr;
+}
+
+function getWeight(d){
+  if(wMode==='freq')return d.frequency;
+  if(wMode==='ahp'){const cw=AHP_W[d.category]||0.1;const f=getFiltered().filter(x=>x.category===d.category);return f.length?cw/f.length:0.01;}
+  return 1;
+}
+
+function render(){
+  const filtered=getSorted(getFiltered());
+  const grid=document.getElementById('critGrid');
+  grid.innerHTML='';
+  document.getElementById('st-shown').textContent=filtered.length;
+  document.getElementById('st-scored').textContent=Object.keys(scores).filter(k=>scores[k]>0).length;
+
+  filtered.forEach(d=>{
+    const col=CC[d.category],lc=CL[d.category],sv=scores[d.id]||0;
+    const w=getWeight(d);
+    const card=document.createElement('div');
+    card.className='crit-card';card.style.setProperty('--cc',col);
+    const tags=[];
+    if(d.onshore)tags.push('<span class="apply-t on-t">On</span>');
+    if(d.offshore)tags.push('<span class="apply-t off-t">Off</span>');
+    card.innerHTML=`
+      <div class="ch">
+        <div><div class="cn">${d.indicator}</div><div class="cn-zh">${d.indicator_zh}</div></div>
+        <div class="freq-pill">n=<strong>${d.frequency}</strong></div>
+      </div>
+      <div class="ct">
+        <span class="ct-tag" style="background:${lc};color:${col}">${d.category}</span>
+        <span class="ct-tag" style="background:#F0F2F5;color:#666;font-size:.66rem">${d.sub_category}</span>
+        ${tags.join('')}
+      </div>
+      <div class="slider-row">
+        <input type="range" min="0" max="10" step="1" value="${sv}" data-id="${d.id}">
+        <span class="sv">${sv}</span>
+      </div>
+      <div class="w-display">Weight: ${wMode==='freq'?d.frequency:wMode==='ahp'?w.toFixed(3):'1.0'} &nbsp;|&nbsp; Weighted: ${(sv*w).toFixed(1)}</div>
+    `;
+    const sl=card.querySelector('input[type=range]'),svEl=card.querySelector('.sv'),wdEl=card.querySelector('.w-display');
+    sl.addEventListener('input',()=>{
+      scores[d.id]=+sl.value;
+      svEl.textContent=sl.value;
+      wdEl.textContent=`Weight: ${wMode==='freq'?d.frequency:wMode==='ahp'?w.toFixed(3):'1.0'} | Weighted: ${(+sl.value*w).toFixed(1)}`;
+      updateStats();
+    });
+    grid.appendChild(card);
+  });
+  updateStats();
+}
+
+function updateStats(){
+  document.getElementById('st-scored').textContent=Object.values(scores).filter(v=>v>0).length;
+}
+
+function calculateScore(){
+  const filtered=getFiltered();
+  let totalW=0,totalS=0;
+  const catT={},catM={};
+  Object.keys(CC).forEach(c=>{catT[c]=0;catM[c]=0;});
+
+  filtered.forEach(d=>{
+    const s=scores[d.id]||0,w=getWeight(d);
+    totalS+=s*w;totalW+=10*w;
+    catT[d.category]=(catT[d.category]||0)+s*w;
+    catM[d.category]=(catM[d.category]||0)+10*w;
+  });
+
+  const score=totalW>0?Math.round(totalS/totalW*100):0;
+  document.getElementById('st-score').textContent=score;
+  document.getElementById('scoreNum').textContent=score;
+
+  let grade,gClass;
+  if(score>=85){grade='Highly Suitable ★★★★★';gClass='grade-A';}
+  else if(score>=70){grade='Suitable ★★★★';gClass='grade-B';}
+  else if(score>=50){grade='Moderate ★★★';gClass='grade-C';}
+  else{grade='Unsuitable ★★';gClass='grade-D';}
+  document.getElementById('scoreGrade').textContent=grade;
+  document.getElementById('scoreSub').textContent=`Based on ${filtered.filter(d=>(scores[d.id]||0)>0).length} scored criteria · ${wMode} weighting`;
+
+  // Category scores
+  const catDiv=document.getElementById('catScores');
+  catDiv.innerHTML='';
+  Object.entries(CC).forEach(([cat,col])=>{
+    const pct=catM[cat]>0?Math.round(catT[cat]/catM[cat]*100):0;
+    catDiv.innerHTML+=`<div class="cat-bar-row">
+      <div class="cbl" style="color:${col}">${cat}</div>
+      <div class="cbb"><div class="cbf" style="width:${pct}%;background:${col}"></div></div>
+      <div class="cbv">${pct}%</div>
+    </div>`;
+  });
+
+  // Radar
+  if(radarChart){radarChart.destroy();radarChart=null;}
+  radarChart=new Chart(document.getElementById('radarC'),{
+    type:'radar',
+    data:{
+      labels:Object.keys(CC),
+      datasets:[{
+        label:'Score %',
+        data:Object.keys(CC).map(c=>catM[c]>0?Math.round(catT[c]/catM[c]*100):0),
+        backgroundColor:'rgba(46,117,182,.15)',borderColor:'#2E75B6',
+        pointBackgroundColor:Object.values(CC),pointRadius:5,borderWidth:2
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      scales:{r:{min:0,max:100,ticks:{font:{size:8},stepSize:25},pointLabels:{font:{size:8}}}},
+      plugins:{legend:{display:false}}
+    }
+  });
+
+  // Top table
+  const top=filtered.map(d=>({...d,s:scores[d.id]||0,ws:(scores[d.id]||0)*getWeight(d)}))
+    .filter(d=>d.s>0).sort((a,b)=>b.ws-a.ws).slice(0,8);
+  const maxWS=Math.max(...top.map(d=>d.ws),1);
+  document.getElementById('topTbody').innerHTML=top.length?top.map(d=>`
+    <tr>
+      <td>${d.indicator}</td>
+      <td style="color:${CC[d.category]};font-size:.72rem">${d.category.replace('Infrastructure','Infra').replace('Topographic','Topo').replace('Environmental','Env').replace('Safety/Risk','Risk')}</td>
+      <td style="font-weight:700">${d.s}/10</td>
+      <td><div class="bar-cell">
+        <div class="mini-bar" style="width:${Math.round(d.ws/maxWS*80)}px;background:${CC[d.category]}"></div>
+        <span style="font-size:.75rem;font-weight:700">${d.ws.toFixed(0)}</span>
+      </div></td>
+    </tr>`).join(''):
+    '<tr><td colspan="4" style="color:#bbb;font-size:.78rem;padding:6px">No criteria scored yet</td></tr>';
+
+  // Recommendation
+  let rec=`<strong style="color:${score>=70?'#065F46':score>=50?'#92400E':'#991B1B'}">${grade}</strong><br><br>`;
+  if(score>=85)rec+=`This site shows excellent potential. Recommended next steps:<br>• Detailed wind resource assessment (LiDAR measurement)<br>• Grid connection study<br>• Environmental impact assessment (EIA)<br>• Financial feasibility & bankability review`;
+  else if(score>=70)rec+=`This site shows good potential with some limitations. Focus improvement on:<br>• Strengthening weak-scoring categories<br>• Infrastructure connectivity assessment<br>• Stakeholder consultation for social acceptance`;
+  else if(score>=50)rec+=`This site has moderate suitability. Key challenges:<br>• Review low-scoring technical criteria<br>• Consider alternative sites nearby<br>• Assess cost-effectiveness carefully`;
+  else rec+=`This site currently scores below threshold. Consider:<br>• Reviewing site selection criteria<br>• Exploring nearby alternative locations<br>• Reassessing project feasibility`;
+  document.getElementById('recText').innerHTML=rec;
+
+  // Save history
+  const hist=JSON.parse(localStorage.getItem('wfHist')||'[]');
+  hist.unshift({score,grade:grade.split(' ')[0],type:projType,time:new Date().toLocaleString()});
+  localStorage.setItem('wfHist',JSON.stringify(hist.slice(0,10)));
+  renderHist();
+}
+
+function renderHist(){
+  const hist=JSON.parse(localStorage.getItem('wfHist')||'[]');
+  const gmap={'Highly':'grade-A','Suitable':'grade-B','Moderate':'grade-C','Unsuitable':'grade-D'};
+  document.getElementById('histBox').innerHTML=hist.slice(0,6).map(h=>{
+    const gk=Object.keys(gmap).find(k=>h.grade.startsWith(k))||'grade-D';
+    return `<div class="hist-item">
+      <span>${h.time}<br><small style="color:#aaa">${h.type}</small></span>
+      <span class="grade-pill ${gmap[gk]||'grade-D'}">${h.score} · ${h.grade}</span>
+    </div>`;
+  }).join('')||'<div style="color:#aaa;font-size:.78rem;padding:4px">No history yet</div>';
+}
+
+function resetAll(){
+  scores={};
+  document.querySelectorAll('input[type=range]').forEach(s=>{s.value=0;});
+  document.querySelectorAll('.sv').forEach(v=>{v.textContent='0';});
+  document.querySelectorAll('.w-display').forEach(w=>{w.textContent='Weight: — | Weighted: 0.0';});
+  updateStats();
+}
+
+function toggleDark(){document.body.classList.toggle('dark');}
+
+function exportCSV(){
+  const filtered=getFiltered();
+  const rows=[['ID','Indicator','中文名称','Category','Sub-category','Onshore','Offshore','Frequency','Score(0-10)','Weight','Weighted score']];
+  filtered.forEach(d=>{
+    const s=scores[d.id]||0,w=getWeight(d);
+    rows.push([d.id,d.indicator,d.indicator_zh,d.category,d.sub_category,d.onshore,d.offshore,d.frequency,s,w.toFixed(3),(s*w).toFixed(2)]);
+  });
+  const csv=rows.map(r=>r.join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download=`wind-site-scores-${projType}-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+async function exportPDF(){
+  const{jsPDF}=window.jspdf;
+  const doc=new jsPDF();
+  const score=document.getElementById('scoreNum').textContent;
+  const grade=document.getElementById('scoreGrade').textContent;
+  doc.setFontSize(18);doc.setTextColor(30,58,95);
+  doc.text('Wind Farm Suitability Report',20,22);
+  doc.setFontSize(11);doc.setTextColor(100,100,100);
+  doc.text(`Generated: ${new Date().toLocaleString()}`,20,30);
+  doc.text(`Project type: ${projType} | Weight: ${wMode}`,20,37);
+  doc.setDrawColor(200,200,200);doc.line(20,41,190,41);
+  doc.setFontSize(14);doc.setTextColor(30,58,95);
+  doc.text(`Composite Score: ${score}/100`,20,52);
+  doc.text(`Grade: ${grade}`,20,62);
+  doc.setFontSize(11);doc.setTextColor(60,60,60);
+  const top=getFiltered().map(d=>({...d,s:scores[d.id]||0,ws:(scores[d.id]||0)*getWeight(d)}))
+    .filter(d=>d.s>0).sort((a,b)=>b.ws-a.ws).slice(0,10);
+  if(top.length){
+    doc.setFontSize(12);doc.setTextColor(30,58,95);doc.text('Top scored criteria:',20,76);
+    doc.setFontSize(10);doc.setTextColor(60,60,60);
+    top.forEach((d,i)=>{doc.text(`${i+1}. ${d.indicator} [${d.category}] — Score: ${d.s}/10, Weighted: ${d.ws.toFixed(1)}`,24,84+i*7);});
+  }
+  doc.setFontSize(9);doc.setTextColor(150,150,150);
+  doc.text('Wind Farm Suitability Tool v2.0 | Based on 77-paper systematic review',20,280);
+  doc.save(`wind-site-report-${new Date().toISOString().slice(0,10)}.pdf`);
+}
+
+renderHist();
+render();
+</script>
+</body>
+</html>

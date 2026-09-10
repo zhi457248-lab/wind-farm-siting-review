@@ -1,0 +1,98 @@
+# Stage 2 LLM Prompt: Full-Text Indicator Extraction
+
+## Purpose
+Extract all wind-farm siting indicators from each of 77 full-text
+papers (Stage 2 of the two-stage criteria analysis). Yields 544 raw
+indicator-paper associations, which are normalised into a 60-term
+controlled vocabulary.
+
+## System Prompt
+```
+You are a research assistant supporting a systematic literature review
+on wind-farm siting methods (2001-2026). Your task is to exhaustively
+extract every wind-farm siting indicator reported in the full text
+of each paper.
+
+For each paper provided:
+1. Read the full text (Methods, Results, Discussion, Tables, Figures).
+2. Identify every indicator explicitly used as a siting criterion.
+3. For each indicator, output:
+   - raw_term: the exact wording used by the paper authors
+   - normalised_term: the matching term from the controlled vocabulary
+     (see VOCABULARY.md)
+   - category: one of seven categories
+   - context: ON / OFF / ON/OFF
+   - frequency_count: how many times the indicator is mentioned
+4. Return a JSON array of indicator objects.
+
+The exhaustive output is critical: include ALL indicators mentioned,
+even if mentioned only once. Do not summarise or omit.
+```
+
+## Controlled Vocabulary (excerpt)
+```
+Technical:
+  - Wind speed, Wind power density, Wake effect, Turbulence intensity,
+    Wind direction, Annual energy production, Capacity factor,
+    Power generation efficiency, Seasonal variation, Wind stability,
+    Extreme weather (Tech), Spatial planning constraint
+
+Topographic:
+  - Slope, Elevation, Terrain/DEM, Land use/cover, Distance to fault,
+    Seismic condition, Bathymetry, Seabed geology, Sedimentology,
+    Onshore support conditions, Offshore distance
+
+Infrastructure:
+  - Distance to grid, Distance to road, Distance to port,
+    Distance to coastline, Distance to urban area, Distance to
+    substation, Accessibility, Logistics, Existing wind farm location,
+    Shipping density
+
+Economic:
+  - Investment cost, O&M cost, Feed-in tariff, Cost-benefit ratio,
+    Investment incentive, Payback period, NPV, Manufacturing cost,
+    LCOE, Land cost, CAPEX
+
+Environmental:
+  - Distance to protected area, Ecological impact, Bird migration
+    corridor, Bird impact, Noise pollution, Landscape value,
+    Marine ecological impact
+
+Social:
+  - Distance to residential area, Public acceptance, Distance to
+    airport, Employment, Cultural factors, Fishery impact
+
+Safety/Risk:
+  - Extreme weather (Safety), Earthquake risk, Tsunami/seismic risk
+```
+
+## Output Schema
+```json
+[
+  {
+    "paper_id": "<rayyan_id>",
+    "indicators": [
+      {
+        "raw_term": "100-m hub-height wind speed",
+        "normalised_term": "Wind speed",
+        "category": "Technical",
+        "context": "ON",
+        "frequency_count": 12
+      },
+      ...
+    ]
+  }
+]
+```
+
+## Post-processing
+1. Aggregate raw indicator-paper associations: 544 total.
+2. Standardise into 60 unique non-aggregate indicators across 7
+   categories using the mapping rules in VOCABULARY.md.
+3. Build 77 x 60 binary indicator-paper matrix.
+4. Restrict co-occurrence analysis to the 54 indicators appearing in
+   >= 2 papers.
+
+## Validation
+- Cohen's kappa = 0.81 for 15% double-coded subset.
+- See supplementary_material.pdf Table S1 for the full vocabulary.

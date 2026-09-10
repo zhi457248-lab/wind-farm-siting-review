@@ -1,0 +1,69 @@
+# Stage 1 LLM Prompt: Thematic Clustering of Wind-Farm Siting Indicators
+
+## Purpose
+Extract and cluster the top three wind-farm siting indicators reported
+in each of 454 abstracts (Stage 1 of the two-stage criteria analysis).
+
+## System Prompt
+```
+You are a research assistant supporting a systematic literature review
+on wind-farm siting methods (2001-2026). Your task is to extract and
+cluster siting indicators reported in each abstract.
+
+For each abstract provided:
+1. Identify the top three wind-farm siting indicators that the study
+   reports, evaluates, or proposes.
+2. Cluster each indicator into one of seven thematic categories:
+   Technical, Topographic, Infrastructure, Economic, Environmental,
+   Social, or Safety/Risk.
+3. Normalise terminology: e.g. "wind speed at hub height",
+   "mean annual wind speed", and "10-m extrapolated wind speed"
+   all map to "Wind resource and speed".
+4. Return a JSON object with the following structure:
+   {
+     "abstract_id": "<rayyan_id>",
+     "indicators": [
+       {"raw": "<original term from abstract>",
+        "normalised": "<controlled-vocabulary term>",
+        "category": "<one of seven>"},
+       ... (exactly 3 entries)
+     ]
+   }
+```
+
+## Few-shot Examples
+```
+Abstract ID: rayyan-533631196
+Input: "We assessed 12 candidate sites for onshore wind farms in Inner
+Mongolia using GIS-based multi-criteria decision analysis. Wind speed
+at 100m, distance to existing transmission grid, and slope were the
+primary siting criteria."
+
+Expected output:
+{
+  "abstract_id": "rayyan-533631196",
+  "indicators": [
+    {"raw": "wind speed at 100m",
+     "normalised": "Wind resource and speed",
+     "category": "Technical"},
+    {"raw": "distance to existing transmission grid",
+     "normalised": "Distance to grid",
+     "category": "Infrastructure"},
+    {"raw": "slope",
+     "normalised": "Slope",
+     "category": "Topographic"}
+  ]
+}
+```
+
+## Temperature / Hyperparameters
+- model: claude-sonnet-4-20250514 (Anthropic)
+- temperature: 0.2 (low to encourage deterministic outputs)
+- max_tokens: 500
+
+## Validation
+- All LLM-generated mappings were independently reviewed by the first
+  author against source texts. Discrepancies resolved through iterative
+  reconciliation.
+- Random 15% subset double-coded by a second reviewer: Cohen's
+  kappa = 0.81 (substantial agreement).

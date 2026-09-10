@@ -1,0 +1,200 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{setspace}
+\usepackage{xcolor}
+\geometry{margin=2.5cm}
+
+\title{Supplementary Material:\\Wind-Farm Siting Systematic Review}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\onehalfspacing
+
+\setcounter{table}{0}
+\renewcommand{\thetable}{S\arabic{table}}
+
+\section*{Overview}
+
+This supplementary document provides: (1) the complete controlled vocabulary of standardised siting indicators (Table~S1); (2) the terminology normalisation rules used to map heterogeneous author-reported labels to the controlled vocabulary (Table~S2); and (3) the prompt templates used for the LLM-assisted extraction and validation stages (Table~S3). The interactive scoring tool is provided separately as \texttt{supplementary/index.html}.
+
+\bigskip
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Category-level colour scheme used consistently across all figures.}
+\label{tab:colours}
+\begin{tabular}{lll}
+\toprule
+Category & Primary colour & Tint \\
+\midrule
+Technical & \#2E75B6 & \#D6E4F0 \\
+Topographic & \#548235 & \#E2EFDA \\
+Infrastructure & \#00703C & \#D5F5E3 \\
+Economic & \#C55A11 & \#FCE4D6 \\
+Environmental & \#70AD47 & \#E9F3DC \\
+Social & \#7030A0 & \#EAD1FA \\
+Safety/Risk & \#C00000 & \#FADBD8 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\newpage
+\begin{center}
+\renewcommand{\arraystretch}{1.05}
+\small
+\begin{longtable}{p{2.1cm}p{3.5cm}p{2.0cm}p{2.0cm}p{1.2cm}}
+\caption{Scoring vocabulary of 65 wind-farm siting indicators. Context: ON = onshore only; OFF = offshore only; ON/OFF = applicable to both contexts. The 60 non-aggregate standardised indicators constitute the controlled vocabulary used in the main analysis; the remaining 5 entries (Wind shear, Wind farm capacity, Wind farm extensibility, Zone area, Aspect, Ecosystem services, Population density, Return on investment, Cable cost, Wind farm size, Military zone) are exploratory indicators retained for interactive scoring only. Sub-categories follow the seven-category scheme used in the analysis.}\\
+\toprule
+\textbf{Category} & \textbf{Standardised indicator} & \textbf{Sub-category} & \textbf{Context} & \textbf{$n$} \\
+\midrule
+\endfirsthead
+\multicolumn{5}{c}{\small\textit{Table~S1 continued}}\\
+\toprule
+\textbf{Category} & \textbf{Standardised indicator} & \textbf{Sub-category} & \textbf{Context} & \textbf{$n$} \\
+\midrule
+\endhead
+\bottomrule
+\multicolumn{5}{p{0.95\textwidth}}{\small $n$ = number of studies in the 77-study Stage~2 full-text subset in which the indicator was mentioned at least once. The total is the sum over the 65 scoring vocabulary indicators (60 non-aggregate controlled vocabulary + 5 exploratory); it differs from the 544 raw indicator--paper associations because several raw labels were aggregated into a single standardised term.}\\
+\endlastfoot
+Technical & Wind speed & Wind Resource & ON/OFF & 49 \\
+Technical & Wind power density & Wind Resource & ON/OFF & 11 \\
+Technical & Turbulence intensity & Wind Resource & ON/OFF & 4 \\
+Technical & Annual energy production & Wind Resource & ON/OFF & 5 \\
+Technical & Wind direction & Wind Resource & ON/OFF & 3 \\
+Technical & Wind stability & Wind Resource & ON/OFF & 5 \\
+Technical & Capacity factor & Wind Resource & ON/OFF & 3 \\
+Technical & Wake effect & Wind Resource & ON/OFF & 3 \\
+Technical & Wind shear & Wind Resource & ON/OFF & 2 \\
+Technical & Wind farm capacity & Wind Resource & ON/OFF & 2 \\
+Technical & Wind farm extensibility & Wind Resource & ON/OFF & 2 \\
+Technical & Power generation efficiency & Performance & ON/OFF & 4 \\
+Technical & Ocean current velocity & Marine Condition & OFF & 2 \\
+Technical & Wave height & Marine Condition & OFF & 3 \\
+Topographic & Slope & Terrain & ON & 18 \\
+Topographic & Elevation & Terrain & ON & 7 \\
+Topographic & Aspect & Terrain & ON & 2 \\
+Topographic & Terrain/DEM & Terrain & ON & 3 \\
+Topographic & Zone area & Terrain & ON/OFF & 2 \\
+Topographic & Land use/cover & Land Cover & ON & 9 \\
+Topographic & Spatial constraint & Marine Condition & OFF & 3 \\
+Topographic & Water depth & Marine Condition & OFF & 14 \\
+Topographic & Offshore distance & Marine Location & OFF & 15 \\
+Topographic & Seabed geology & Marine Condition & OFF & 3 \\
+Topographic & Sedimentology & Marine Condition & OFF & 2 \\
+Infrastructure & Distance to grid & Power System & ON/OFF & 26 \\
+Infrastructure & Distance to road & Transportation & ON & 21 \\
+Infrastructure & Distance to port & Transportation & OFF & 5 \\
+Infrastructure & Distance to substation & Power System & ON/OFF & 4 \\
+Infrastructure & Distance to urban area & Settlement & ON/OFF & 6 \\
+Infrastructure & Accessibility & Transportation & ON/OFF & 5 \\
+Infrastructure & Logistics & Transportation & OFF & 3 \\
+Infrastructure & Cable cost & Power System & OFF & 2 \\
+Infrastructure & Wind farm size & Power System & ON/OFF & 2 \\
+Infrastructure & Existing wind farm location & Power System & ON/OFF & 3 \\
+Economic & Investment cost & Cost & ON/OFF & 8 \\
+Economic & O\&M cost & Cost & ON/OFF & 4 \\
+Economic & LCOE & Cost & ON/OFF & 3 \\
+Economic & CAPEX & Cost & ON/OFF & 2 \\
+Economic & Land cost & Cost & ON & 2 \\
+Economic & NPV & Return & ON/OFF & 3 \\
+Economic & Payback period & Return & ON/OFF & 3 \\
+Economic & Cost-benefit ratio & Return & ON/OFF & 3 \\
+Economic & Return on investment & Return & ON/OFF & 2 \\
+Economic & Investment incentive & Return & ON/OFF & 2 \\
+Economic & Feed-in tariff & Return & ON/OFF & 3 \\
+Environmental & Distance to protected area & Ecological Protection & ON/OFF & 12 \\
+Environmental & Ecological impact & Ecological Protection & ON/OFF & 4 \\
+Environmental & Ecosystem services & Ecological Protection & ON/OFF & 2 \\
+Environmental & Bird impact & Wildlife & ON/OFF & 6 \\
+Environmental & Marine ecological impact & Marine Ecology & OFF & 5 \\
+Environmental & Noise pollution & Pollution & ON/OFF & 4 \\
+Environmental & Landscape value & Pollution & ON/OFF & 3 \\
+Social & Distance to residential area & Settlement & ON/OFF & 8 \\
+Social & Public acceptance & Stakeholder & ON/OFF & 7 \\
+Social & Population density & Settlement & ON/OFF & 2 \\
+Social & Distance to airport & Settlement & ON/OFF & 3 \\
+Social & Employment & Socio-economic & ON/OFF & 4 \\
+Social & Cultural factors & Stakeholder & ON/OFF & 2 \\
+Social & Shipping density & Marine Use & OFF & 3 \\
+Social & Fishery impact & Marine Use & OFF & 3 \\
+Safety/Risk & Extreme weather & Natural Hazard & ON/OFF & 4 \\
+Safety/Risk & Earthquake risk & Natural Hazard & ON/OFF & 3 \\
+Safety/Risk & Distance to fault & Geohazard & ON & 3 \\
+Safety/Risk & Military zone & Conflict Zone & ON/OFF & 2 \\
+\end{longtable}
+\end{center}
+
+\newpage
+\begin{table}[htbp]
+\centering
+\small
+\caption{Terminology normalisation rules used to map heterogeneous author-reported criterion labels to the standardised indicators in Table~S1. The examples are representative rather than exhaustive.}
+\label{tab:mapping}
+\begin{tabular}{p{4.2cm}p{8.5cm}}
+\toprule
+\textbf{Standardised indicator} & \textbf{Representative raw labels mapped to it} \\
+\midrule
+Wind speed & average wind speed, wind velocity, mean wind speed, wind resource, site wind speed \\
+Wind power density & wind power density, WPD, power density \\
+Distance to grid & distance to transmission line, grid connection, proximity to power grid, distance to substation (when substation is unspecified) \\
+Distance to road & road accessibility, proximity to roads, distance from roads, transport access \\
+Slope & gradient, terrain slope, topographic slope, steepness \\
+Offshore distance & distance from coast, distance to shoreline, coastal distance \\
+Water depth & bathymetry, sea depth, ocean depth \\
+Distance to protected area & proximity to protected areas, nature reserve distance, conservation area \\
+Wind power density & wind power density, WPD, power density \\
+Distance to port & distance to harbour, port proximity \\
+Public acceptance & social acceptance, public support, stakeholder acceptance, social perception \\
+Distance to residential area & distance to settlements, distance to houses, population proximity, distance to urban area (when treated as a social constraint) \\
+Employment & job creation, employment opportunities, local employment \\
+Investment cost & construction cost, capital cost, total cost, project cost \\
+LCOE & levelised cost of energy, cost of energy, electricity generation cost \\
+NPV & net present value, economic value \\
+Extreme weather & extreme wind, storm risk, typhoon risk, severe weather \\
+Distance to fault & fault line proximity, seismic fault distance, fault zone \\
+Earthquake risk & seismic risk, earthquake hazard, seismicity \\
+Military zone & restricted military area, defence zone, military restriction \\
+Shipping density & shipping lane proximity, vessel traffic, maritime traffic, shipping route \\
+Fishery impact & fishing impact, fishery conflict, fishing ground impact \\
+Cable cost & transmission cable cost, submarine cable cost, grid connection cost \\
+Marine ecological impact & marine ecosystem impact, benthic impact, fish habitat impact \\
+Logistics & construction logistics, supply chain access, installation logistics \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\newpage
+\section*{Table S3. LLM Prompt Templates}
+
+The two prompt templates below were used for Stage~1 and Stage~2 extraction. All prompts were run against the Claude large language model (Anthropic, claude-sonnet-4-20250514). LLM outputs were reviewed by the authors and reconciled against the original source texts.
+
+\subsection*{S3.1 Stage~1 thematic clustering prompt (abstract-level top-three indicators)}
+
+\begin{quote}
+\small
+You are assisting with a systematic literature review on wind-farm site selection. For each article abstract below, identify the top three siting criteria explicitly mentioned or implied by the authors. Return a JSON object with three keys: \texttt{ind1}, \texttt{ind2}, and \texttt{ind3}. Use normalised, generic labels (e.g., ``wind speed'', ``distance to grid'', ``slope'', ``public acceptance''). If fewer than three criteria are mentioned, leave the remaining values as \texttt{null}. Do not invent criteria not supported by the abstract.
+\end{quote}
+
+\subsection*{S3.2 Stage~2 full-corpus extraction prompt (full-text subset)}
+
+\begin{quote}
+\small
+You are extracting all siting criteria from the following full-text article on wind-farm site selection. List every distinct criterion mentioned by the authors, including criteria that appear only in tables, figures, or the methodology section. For each criterion, provide (1) the exact author wording, and (2) the closest match from the controlled vocabulary: wind speed, wind power density, distance to grid, distance to road, slope, water depth, offshore distance, distance to protected area, bird impact, noise pollution, public acceptance, investment cost, LCOE, extreme weather, earthquake risk, distance to fault, and other standardised indicators. Return the output as a JSON list of objects with keys \texttt{raw\_term} and \texttt{standardised\_indicator}.
+\end{quote}
+
+\subsection*{S3.3 Inter-rater validation prompt}
+
+\begin{quote}
+\small
+Review the following article excerpt and the candidate siting indicators identified by another reviewer. Mark each indicator as ``present'', ``absent'', or ``unclear''. For any ``absent'' or ``unclear'' item, provide a brief justification. Focus on whether the criterion is explicitly discussed in the context of site selection, not merely mentioned in passing.
+\end{quote}
+
+\end{document}
