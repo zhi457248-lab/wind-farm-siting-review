@@ -3,8 +3,7 @@
 Replication archive for the systematic literature review:
 
 > **A two-stage criteria analysis for wind-farm siting: 60 standardised
-> indicators, a four-tier hierarchical framework (WFSSF), and a
-> six-site empirical validation.**
+> indicators and a four-tier hierarchical framework (WFSSF).**
 
 This repository contains all code, prompts, and data needed to
 reproduce the figures, tables, and quantitative analyses reported in
@@ -18,9 +17,10 @@ the main manuscript and supplementary material.
 ├── LICENSE                         (MIT)
 ├── requirements.txt                (Python dependencies)
 ├── code/
-│   ├── fig7_combined.py                 (Fig. 7 + Table 3 SCADA validation)
+│   ├── fig7_combined.py                 (Fig. 7 + Table 3 SCADA statistics)
 │   ├── fig_end2end_workflow.py          (Fig. 2)
-│   ├── fig_mcdm_comparison.py           (Fig. 14)
+│   ├── fig_mcdm_comparison.py           (Fig. 14, Table 5)
+│   ├── fig_validation_concordance.py    (Table 7 gate verdicts)
 │   └── fig_sensitivity_uncertainty.py   (Fig. 15)
 ├── prompts/
 │   ├── stage1_clustering_prompt.txt   (LLM prompt for thematic clustering)
@@ -29,8 +29,7 @@ the main manuscript and supplementary material.
 │   ├── tab_mcdm_comparison.csv          (MCDM ranking table)
 │   ├── tab_scada_correlations.csv       (per-site wind-power Pearson r)
 │   ├── tab_sites.csv                    (Table 3 summary statistics)
-│   ├── tab_validation_concordance.csv   (per-site WFSSF tier status)
-│   ├── tab_case_validation.csv          (alias of validation_concordance)
+│   ├── tab_validation_concordance.csv   (per-profile WFSSF tier status)
 │   └── tab_sensitivity_uncertainty.csv  (robustness-check summary)
 ├── docs/
 │   └── supplementary_material.tex  (S1-S3 controlled vocab, mapping rules)
@@ -61,6 +60,7 @@ cd code
 python3 fig7_combined.py                 # -> fig7_combined.png/pdf, tab_sites.csv
 python3 fig_end2end_workflow.py          # -> fig_end2end_workflow.png/pdf
 python3 fig_mcdm_comparison.py           # -> fig_mcdm_comparison.png/pdf
+python3 fig_validation_concordance.py    # -> tab_validation_concordance.csv
 python3 fig_sensitivity_uncertainty.py   # -> fig_sensitivity_uncertainty.png/pdf
 ```
 
@@ -79,7 +79,18 @@ interactive scenario scoring.
 
 ## Data Provenance
 
-### Six Wind Farms (`tab_sites.csv`, `tab_scada_correlations.csv`, `tab_validation_concordance.csv`)
+### Scope of the six-site analysis (read this first)
+
+Only **Tier 1** quantities are measured data. **Tier 2-4 quantities are
+constructed analyst scores on [0,1] and were not collected in the field.**
+They exist solely to exercise the logic of the WFSSF sequential gate and
+are held fixed across all analyses in the manuscript. The resulting gate
+verdicts are an illustration of decision logic, not an empirical accuracy
+or concordance statistic; no concordance rate is computed or reported.
+`fig_mcdm_comparison.py` likewise builds an analyst-specified 15-indicator
+profile matrix, not measured site attributes.
+
+### Six wind farms (`tab_sites.csv`, `tab_scada_correlations.csv`)
 - 36-200 MW commercial operational wind farms
 - 70,176 15-minute resolution SCADA records per site, 1 January 2019 to 31 December 2020
 - Mean hub-height wind speed and capacity factor are computed from the raw SCADA files (`Wind farm site {1..6}.xlsx`)
@@ -87,14 +98,20 @@ interactive scenario scoring.
 - Capacity factor: mean active power over records with active power > 0, divided by nominal capacity
 - Pearson r: correlation between hub-height wind speed and active power, computed on records where both are > 0
 - Atmospheric pressure was excluded from Table 3 because the raw pressure series contained physically implausible values (negative placeholders and readings > 2000 hPa)
-- Tier 2-4 indicators are GIS proxies sourced from public wind-farm databases
-- Sites 1-5: real operational farms; Site 6: counterfactual
+- All six sites are real, built, operational wind farms
+
+### Tier 2-4 indicators (`tab_validation_concordance.csv`)
+- Constructed [0,1] scores assigned by the analyst; not measured
+- Eight attributes: distance to grid / road / port, accessibility,
+  protected-area proximity, bird-impact exposure, seismic condition,
+  investment cost, payback period
+- Tier 2-4 gate verdicts illustrate gate logic only
 
 ### MCDM Comparison (`tab_mcdm_comparison.csv`)
-- 6 sites x 15 indicators (subset of 60-term controlled vocabulary)
+- 6 sites x 15 indicators (subset of 60-term controlled vocabulary),
+  all analyst-constructed illustrative values
 - 4 compensatory methods: GIS-MCDM weighted sum, AHP (equal weights),
   TOPSIS distance ratio, ELECTRE II net concordance flow
-- 1 non-compensatory method: WFSSF sequential Tier 1-4 gate
 
 ## Repository URL
 
@@ -106,8 +123,8 @@ If you use this code or data in your research, please cite the
 associated manuscript:
 
 > [Authors], [Year]. A two-stage criteria analysis for wind-farm
-> siting: 60 standardised indicators, a four-tier hierarchical
-> framework (WFSSF), and a six-site empirical validation.
+> siting: 60 standardised indicators and a four-tier hierarchical
+> framework (WFSSF).
 > [Journal], [Volume]([Issue]), [Pages].
 
 ## License

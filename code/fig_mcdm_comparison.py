@@ -1,15 +1,23 @@
 """
-Compensatory GIS-MCDM methods vs WFSSF on six wind farms.
+Compensatory GIS-MCDM methods vs the WFSSF sequential gate.
 
-Constructs a synthetic but realistic indicator profile for each site
-(based on the six operational wind farms reported in Table tab:sites and
-the controlled vocabulary of 60 indicators), then computes:
+Builds a CONSTRUCTED (analyst-specified) indicator profile for each of the
+six sites and compares four compensatory aggregation methods against the
+WFSSF non-compensatory gate, then computes:
 
   - Conventional compensatory GIS-MCDM (weighted sum, equal weights)
   - AHP (Analytic Hierarchy Process, equal weights as conservative baseline)
   - TOPSIS (Technique for Order Preference by Similarity to Ideal Solution)
   - ELECTRE II (ELimination Et Choix Traduisant la REalite)
   - WFSSF (sequential non-compensatory Tier 1-4 filtering)
+
+IMPORTANT -- these 15 indicator values are ILLUSTRATIVE, not measured.
+Only Table 3 / fig7_combined.py contains real SCADA-derived quantities.
+The profiles below are specified by the analyst so that Site 6 is strong
+on wind resource but fails the Tier 2 distance-to-port and accessibility
+gates, in order to illustrate the wind-speed paradox. Every number this
+script produces is therefore a property of the construction and must not
+be reported as an empirical finding about the six wind farms.
 
 Outputs:
   - ranking comparison table (tab_mcdm_comparison.csv)

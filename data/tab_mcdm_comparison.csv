@@ -1,9 +1,4 @@
-Site,"GIS-MCDM
-(weighted sum)","AHP
-(equal weights)","TOPSIS
-(distance ratio)","ELECTRE II
-(net flow)","WFSSF
-(tier passed)",GIS-MCDM_(weighted sum)_rank,AHP_(equal weights)_rank,TOPSIS_(distance ratio)_rank,ELECTRE II_(net flow)_rank
+Site,GIS-MCDM (weighted sum),AHP (equal weights),TOPSIS (distance ratio),ELECTRE II (net flow),WFSSF (tier passed),GIS-MCDM (weighted sum) rank,AHP (equal weights) rank,TOPSIS (distance ratio) rank,ELECTRE II (net flow) rank
 Site 1,0.5413333333333333,0.5413333333333333,0.43297472990980346,0.0,0,6,6,6,6
 Site 2,0.5653333333333334,0.5653333333333334,0.5178838821788632,0.11904761904759777,4,4,4,3,5
 Site 3,0.6366666666666667,0.6366666666666667,0.567442515808215,0.9999999999998214,4,2,2,1,1
