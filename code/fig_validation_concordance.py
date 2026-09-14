@@ -33,13 +33,12 @@ import matplotlib.pyplot as plt
 np.random.seed(2026)
 
 # ---- Real SCADA parameters from tab:sites (Sites 1-5) ---------------------
-# Each row: Site, MW, mean hub-height wind speed (m/s), capacity factor (%), mean pressure (hPa)
+# Each row: Site, MW, mean hub-height wind speed (m/s), capacity factor (%)
 SCADA = pd.DataFrame({
     'Site': ['Site 1', 'Site 2', 'Site 3', 'Site 4', 'Site 5', 'Site 6'],
     'MW': [99, 200, 99, 66, 36, 96],
     'wind_speed': [6.46, 7.91, 5.01, 5.65, 4.78, 8.20],
     'CF': [23.7, 40.8, 22.9, 32.8, 26.9, 35.2],
-    'pressure': [889.5, 883.3, 971.8, 886.8, 823.5, 1088.3],
 })
 
 # ---- Tier 1 indicators derived from SCADA ----------------------------------
