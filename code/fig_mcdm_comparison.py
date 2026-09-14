@@ -208,7 +208,7 @@ score_mat = rank_table[methods].values
 score_norm = score_mat / (score_mat.max(axis=0) + 1e-12)
 
 ax = axes[0]
-im = ax.imshow(score_norm, aspect='auto', cmap='RdYlGn', vmin=0, vmax=1)
+im = ax.imshow(score_norm, aspect='auto', cmap='Blues', vmin=0, vmax=1)
 ax.set_xticks(range(len(methods)))
 ax.set_xticklabels(methods, rotation=0, fontsize=8.5)
 ax.set_yticks(range(len(profiles)))
@@ -217,34 +217,38 @@ for i in range(len(profiles)):
     for j in range(len(methods)):
         v = score_mat[i, j]
         ax.text(j, i, f'{v:.2f}', ha='center', va='center', fontsize=8,
-                color='black' if 0.3 < score_norm[i, j] < 0.7 else 'white')
-ax.set_title('(a) Normalised suitability scores by site and method',
-             fontsize=10.5, fontweight='bold')
+                color='white' if score_norm[i, j] > 0.55 else 'black')
+# Subfigure label only; descriptive caption lives in LaTeX
+ax.text(-0.10, 1.03, '(a)', transform=ax.transAxes,
+        fontsize=12, fontweight='bold', va='top')
 plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04, label='Normalised score')
 
 # (b) Site 6 comparison (the wind-speed paradox)
 ax = axes[1]
 site6_idx = 5
 site6_scores = score_norm[site6_idx]
-colors = ['#4472C4', '#4472C4', '#4472C4', '#4472C4', '#C00000']
-bars = ax.bar(methods, site6_scores, color=colors, edgecolor='black', linewidth=0.8)
-for bar, v in zip(bars, site6_scores):
-    ax.text(bar.get_x() + bar.get_width()/2, v + 0.02,
-            f'{v:.2f}', ha='center', va='bottom', fontsize=9, fontweight='bold')
+comp_colors = ['#4E79A7', '#4E79A7', '#4E79A7', '#4E79A7']
+methods_wfssf = methods + ['WFSSF\n(Tier 2 excl.)']
+all_scores = list(site6_scores) + [0.0]
+all_colors = comp_colors + ['#C00000']
+bars = ax.bar(methods_wfssf, all_scores, color=all_colors,
+              edgecolor='black', linewidth=0.8)
+for bar, v in zip(bars, all_scores):
+    if v > 0:
+        ax.text(bar.get_x() + bar.get_width()/2, v + 0.02,
+                f'{v:.2f}', ha='center', va='bottom', fontsize=9, fontweight='bold')
+    else:
+        ax.text(bar.get_x() + bar.get_width()/2, 0.03,
+                'excluded', ha='center', va='bottom', fontsize=8, fontweight='bold')
 ax.axhline(y=0.5, color='gray', linestyle='--', linewidth=0.8, alpha=0.6)
-ax.text(len(methods)-0.5, 0.5, '50% threshold', fontsize=8,
+ax.text(len(methods_wfssf)-0.5, 0.5, '50% threshold', fontsize=8,
         color='gray', ha='right', va='bottom')
 ax.set_ylim(0, 1.15)
 ax.set_ylabel('Normalised suitability score', fontsize=9)
-ax.set_title('(b) Site 6 wind-speed paradox: WFSSF vs compensatory methods',
-             fontsize=10.5, fontweight='bold')
 ax.tick_params(axis='x', labelsize=8)
-# Replace last method label with "WFSSF (Tier 2 exclusion)"
-methods_wfssf = methods + ['WFSSF\n(Tier 2 excl.)']
-ax.set_xticks(range(len(methods) + 1))
-ax.set_xticklabels(methods_wfssf, rotation=0, fontsize=8.5)
-ax.bar(['WFSSF\n(Tier 2 excl.)'], [0.0], color='#C00000', edgecolor='black',
-       linewidth=0.8)
+# Subfigure label only
+ax.text(-0.10, 1.03, '(b)', transform=ax.transAxes,
+        fontsize=12, fontweight='bold', va='top')
 
 plt.tight_layout()
 plt.savefig('/Users/juicy/风电选址综述/fig_mcdm_comparison.png',

@@ -30,16 +30,24 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+from fig7_combined import load_site, compute_site_stats, CAPACITIES
+
 np.random.seed(2026)
 
 # ---- Real SCADA parameters from tab:sites (Sites 1-5) ---------------------
-# Each row: Site, MW, mean hub-height wind speed (m/s), capacity factor (%)
-SCADA = pd.DataFrame({
-    'Site': ['Site 1', 'Site 2', 'Site 3', 'Site 4', 'Site 5', 'Site 6'],
-    'MW': [99, 200, 99, 66, 36, 96],
-    'wind_speed': [6.46, 7.91, 5.01, 5.65, 4.78, 8.20],
-    'CF': [23.7, 40.8, 22.9, 32.8, 26.9, 35.2],
-})
+# Load the original xlsx files and compute the same summary statistics used
+# in Table 3; do not hard-code them. See fig7_combined.py for methodology.
+scada_rows = []
+for site_id in range(1, 7):
+    df = load_site(site_id)
+    stats = compute_site_stats(df)
+    scada_rows.append({
+        'Site': f'Site {site_id}',
+        'MW': CAPACITIES[site_id],
+        'wind_speed': stats['mean_hub_ws'],
+        'CF': stats['capacity_factor'],
+    })
+SCADA = pd.DataFrame(scada_rows)
 
 # ---- Tier 1 indicators derived from SCADA ----------------------------------
 # Tier 1 uses absolute IEC 61400-1 commercial viability thresholds.
@@ -151,65 +159,71 @@ print()
 print(f'Framework concordance rate: {results_df["concordant"].sum()}/{len(results_df)} '
       f'= {concordance_rate*100:.1f}%')
 
-# ---- Plot concordance -----------------------------------------------------
-fig, ax = plt.subplots(figsize=(9, 5), dpi=200)
-sites = results_df['Site']
-x = np.arange(len(sites))
-width = 0.35
+# ---- Plot concordance as site x tier pass/fail matrix ---------------------
+fig, ax = plt.subplots(figsize=(9, 5.2), dpi=200)
 
-# Plot verdict as numeric: 4 = pass all, 0 = reject T1, 1 = reject T2, etc.
-verdict_score = results_df['verdict'].map({
-    'Pass all tiers': 4,
-    'Reject T4': 3,
-    'Reject T3': 2,
-    'Reject T2': 1,
-    'Reject T1': 0,
-})
-gt_score = results_df['ground_truth'].map({
-    'Pass all tiers': 4,
-    'Reject T4': 3,
-    'Reject T3': 2,
-    'Reject T2': 1,
-    'Reject T1': 0,
-})
+# Build tier pass/fail matrix (True = pass, False = fail, None = not reached)
+tier_cols = ['T1', 'T2', 'T3', 'T4']
+matrix = results_df[tier_cols].values
+sites = results_df['Site'].values
 
-colors_pred = ['#C00000' if not c else '#4472C4' for c in results_df['concordant']]
-bars1 = ax.bar(x - width/2, verdict_score, width, color=colors_pred,
-               edgecolor='black', linewidth=0.8, label='WFSSF verdict')
-bars2 = ax.bar(x + width/2, gt_score, width, color='#A9D18E', alpha=0.7,
-               edgecolor='black', linewidth=0.8, label='Ground truth')
+# Colour scheme (colour-blind friendly)
+C_PASS = '#1B5E20'      # dark green
+C_FAIL = '#B71C1C'      # dark red
+C_NONE = '#E0E0E0'      # light grey
 
-for i, (vs, gs, c) in enumerate(zip(verdict_score, gt_score, results_df['concordant'])):
-    label = '✓' if c else '✗'
-    ax.text(i, 4.3, label, ha='center', va='bottom', fontsize=14,
-            fontweight='bold', color='green' if c else 'red')
+ax.set_xlim(-0.6, len(tier_cols) + 0.5)
+ax.set_ylim(-0.8, len(sites) + 0.9)
+ax.invert_yaxis()
+ax.set_aspect('equal')
+ax.axis('off')
 
-ax.set_xticks(x)
-ax.set_xticklabels(sites, fontsize=10)
-ax.set_yticks([0, 1, 2, 3, 4])
-ax.set_yticklabels(['Reject\nT1', 'Reject\nT2', 'Reject\nT3',
-                    'Reject\nT4', 'Pass\nall tiers'], fontsize=8.5)
-ax.set_ylabel('WFSSF decision outcome', fontsize=10)
-ax.set_xlabel('Wind farm site', fontsize=10)
-ax.set_title(f'WFSSF Six-Site Framework Concordance Evaluation '
-             f'({results_df["concordant"].sum()}/{len(results_df)} '
-             f'= {concordance_rate*100:.1f}% concordance)',
-             fontsize=11.5, fontweight='bold')
-ax.legend(loc='lower left', fontsize=9)
-ax.set_ylim(-0.3, 4.8)
-ax.grid(axis='y', alpha=0.3, linestyle='--')
+# Column headers
+for j, t in enumerate(tier_cols):
+    ax.text(j, -0.35, t, ha='center', va='center',
+            fontsize=12, fontweight='bold', color='#333333')
 
-# Tier annotations
-tier_labels = []
-for _, row in results_df.iterrows():
-    txt = row['verdict']
-    if txt != 'Pass all tiers':
-        tier_labels.append(txt)
-    else:
-        tier_labels.append('Recommended')
-for i, tl in enumerate(tier_labels):
-    ax.text(i, -0.05, tl, ha='center', va='top', fontsize=8,
-            color='black', fontweight='bold')
+# Row labels (sites)
+for i, s in enumerate(sites):
+    ax.text(-0.45, i, s, ha='right', va='center',
+            fontsize=10.5, fontweight='bold', color='#333333')
+
+# Cells
+for i, row in enumerate(matrix):
+    for j, val in enumerate(row):
+        if val is True:
+            face, edge, mark, mcol = C_PASS, C_PASS, '\u2713', 'white'
+        elif val is False:
+            face, edge, mark, mcol = C_FAIL, C_FAIL, '\u2717', 'white'
+        else:
+            face, edge, mark, mcol = C_NONE, '#9E9E9E', '\u2014', '#757575'
+        circle = plt.Circle((j, i), 0.32, facecolor=face, edgecolor=edge, linewidth=1.5)
+        ax.add_patch(circle)
+        ax.text(j, i, mark, ha='center', va='center',
+                fontsize=16, fontweight='bold', color=mcol)
+
+# Final verdict labels on the right
+for i, (v, c) in enumerate(zip(results_df['verdict'], results_df['concordant'])):
+    label = 'Recommended' if v == 'Pass all tiers' else v
+    col = '#1B5E20' if c else '#B71C1C'
+    ax.text(len(tier_cols) + 0.15, i, label, ha='left', va='center',
+            fontsize=9.5, fontweight='bold', color=col)
+
+# Summary line above the matrix
+summary_y = len(sites) + 0.78
+summary_text = (f'Framework concordance: {results_df["concordant"].sum()}/'
+                f'{len(results_df)} = {concordance_rate*100:.0f}%')
+ax.text(len(tier_cols)/2 - 0.1, summary_y, summary_text,
+        ha='center', va='center', fontsize=10.5, fontweight='bold', color='#333333')
+
+# Legend just below the summary line
+legend_y = len(sites) + 0.38
+ax.add_patch(plt.Circle((0.2, legend_y), 0.13, facecolor=C_PASS, edgecolor=C_PASS))
+ax.text(0.55, legend_y, 'Pass', ha='left', va='center', fontsize=9, color='#333333')
+ax.add_patch(plt.Circle((2.0, legend_y), 0.13, facecolor=C_FAIL, edgecolor=C_FAIL))
+ax.text(2.35, legend_y, 'Fail / gate exclusion', ha='left', va='center', fontsize=9, color='#333333')
+ax.add_patch(plt.Circle((4.5, legend_y), 0.13, facecolor=C_NONE, edgecolor='#9E9E9E'))
+ax.text(4.85, legend_y, 'Not reached', ha='left', va='center', fontsize=9, color='#333333')
 
 plt.tight_layout()
 plt.savefig('/Users/juicy/风电选址综述/fig_validation_concordance.png',

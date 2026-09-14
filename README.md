@@ -36,8 +36,11 @@ the main manuscript and supplementary material.
 ├── docs/
 │   └── supplementary_material.tex  (S1-S3 controlled vocab, mapping rules)
 ├── results/
-│   ├── fig7_combined.*                  (Fig. 7 rendered output)
-│   └── fig_sensitivity_uncertainty.*    (example rendered output)
+│   ├── fig7_combined.*                    (Fig. 7 rendered output)
+│   ├── fig_end2end_workflow.*             (Fig. 2 rendered output)
+│   ├── fig_mcdm_comparison.*              (Fig. 14 rendered output)
+│   ├── fig_validation_concordance.*       (Fig. 15 rendered output)
+│   └── fig_sensitivity_uncertainty.*      (Fig. 16 rendered output)
 └── tool/
     └── wind_farm_suitability_tool.html  (Interactive HTML/JS tool)
 ```
