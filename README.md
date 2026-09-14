@@ -19,10 +19,9 @@ the main manuscript and supplementary material.
 ├── requirements.txt                (Python dependencies)
 ├── code/
 │   ├── fig7_combined.py                 (Fig. 7 + Table 3 SCADA validation)
-│   ├── fig_end2end_workflow.py        (Fig. end2end_workflow)
-│   ├── fig_mcdm_comparison.py         (Fig. mcdm_comparison)
-│   ├── fig_validation_concordance.py  (Fig. validation_concordance)
-│   └── fig_sensitivity_uncertainty.py   (Fig. sensitivity_uncertainty)
+│   ├── fig_end2end_workflow.py          (Fig. 2)
+│   ├── fig_mcdm_comparison.py           (Fig. 14)
+│   └── fig_sensitivity_uncertainty.py   (Fig. 15)
 ├── prompts/
 │   ├── stage1_clustering_prompt.txt   (LLM prompt for thematic clustering)
 │   └── stage2_extraction_prompt.txt   (LLM prompt for full-text extraction)
@@ -39,8 +38,7 @@ the main manuscript and supplementary material.
 │   ├── fig7_combined.*                    (Fig. 7 rendered output)
 │   ├── fig_end2end_workflow.*             (Fig. 2 rendered output)
 │   ├── fig_mcdm_comparison.*              (Fig. 14 rendered output)
-│   ├── fig_validation_concordance.*       (Fig. 15 rendered output)
-│   └── fig_sensitivity_uncertainty.*      (Fig. 16 rendered output)
+│   └── fig_sensitivity_uncertainty.*      (Fig. 15 rendered output)
 └── tool/
     └── wind_farm_suitability_tool.html  (Interactive HTML/JS tool)
 ```
@@ -63,7 +61,6 @@ cd code
 python3 fig7_combined.py                 # -> fig7_combined.png/pdf, tab_sites.csv
 python3 fig_end2end_workflow.py          # -> fig_end2end_workflow.png/pdf
 python3 fig_mcdm_comparison.py           # -> fig_mcdm_comparison.png/pdf
-python3 fig_validation_concordance.py    # -> fig_validation_concordance.png/pdf
 python3 fig_sensitivity_uncertainty.py   # -> fig_sensitivity_uncertainty.png/pdf
 ```
 
