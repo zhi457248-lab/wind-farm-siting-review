@@ -18,22 +18,26 @@ the main manuscript and supplementary material.
 ├── LICENSE                         (MIT)
 ├── requirements.txt                (Python dependencies)
 ├── code/
+│   ├── fig7_combined.py                 (Fig. 7 + Table 3 SCADA validation)
 │   ├── fig_end2end_workflow.py        (Fig. end2end_workflow)
 │   ├── fig_mcdm_comparison.py         (Fig. mcdm_comparison)
 │   ├── fig_validation_concordance.py  (Fig. validation_concordance)
-│   └── fig_sensitivity_uncertainty.py (Fig. sensitivity_uncertainty)
+│   └── fig_sensitivity_uncertainty.py   (Fig. sensitivity_uncertainty)
 ├── prompts/
 │   ├── stage1_clustering_prompt.txt   (LLM prompt for thematic clustering)
 │   └── stage2_extraction_prompt.txt   (LLM prompt for full-text extraction)
 ├── data/
 │   ├── tab_mcdm_comparison.csv          (MCDM ranking table)
+│   ├── tab_scada_correlations.csv       (per-site wind-power Pearson r)
+│   ├── tab_sites.csv                    (Table 3 summary statistics)
 │   ├── tab_validation_concordance.csv   (per-site WFSSF tier status)
 │   ├── tab_case_validation.csv          (alias of validation_concordance)
 │   └── tab_sensitivity_uncertainty.csv  (robustness-check summary)
 ├── docs/
 │   └── supplementary_material.tex  (S1-S3 controlled vocab, mapping rules)
 ├── results/
-│   └── fig_sensitivity_uncertainty.*  (example rendered output)
+│   ├── fig7_combined.*                  (Fig. 7 rendered output)
+│   └── fig_sensitivity_uncertainty.*    (example rendered output)
 └── tool/
     └── wind_farm_suitability_tool.html  (Interactive HTML/JS tool)
 ```
@@ -53,6 +57,7 @@ output to the current working directory.
 
 ```bash
 cd code
+python3 fig7_combined.py                 # -> fig7_combined.png/pdf, tab_sites.csv
 python3 fig_end2end_workflow.py          # -> fig_end2end_workflow.png/pdf
 python3 fig_mcdm_comparison.py           # -> fig_mcdm_comparison.png/pdf
 python3 fig_validation_concordance.py    # -> fig_validation_concordance.png/pdf
@@ -74,11 +79,15 @@ interactive scenario scoring.
 
 ## Data Provenance
 
-### Six Wind Farms (`tab_validation_concordance.csv`)
+### Six Wind Farms (`tab_sites.csv`, `tab_scada_correlations.csv`, `tab_validation_concordance.csv`)
 - 36-200 MW commercial operational wind farms
-- 15-minute resolution SCADA records, calendar year 2019
-- Tier 1 indicators derived directly from SCADA
-- Tier 2-4 indicators sourced from public wind-farm GIS databases
+- 70,176 15-minute resolution SCADA records per site, 1 January 2019 to 31 December 2020
+- Mean hub-height wind speed and capacity factor are computed from the raw SCADA files (`Wind farm site {1..6}.xlsx`)
+- Mean hub-height wind speed: average over records with hub-height wind speed > 0
+- Capacity factor: mean active power over records with active power > 0, divided by nominal capacity
+- Pearson r: correlation between hub-height wind speed and active power, computed on records where both are > 0
+- Atmospheric pressure was excluded from Table 3 because the raw pressure series contained physically implausible values (negative placeholders and readings > 2000 hPa)
+- Tier 2-4 indicators are GIS proxies sourced from public wind-farm databases
 - Sites 1-5: real operational farms; Site 6: counterfactual
 
 ### MCDM Comparison (`tab_mcdm_comparison.csv`)
@@ -90,8 +99,6 @@ interactive scenario scoring.
 ## Repository URL
 
 https://github.com/zhi457248-lab/wind-farm-siting-review
-
-Replace `[USERNAME]` with your GitHub account name before publishing.
 
 ## Citation
 

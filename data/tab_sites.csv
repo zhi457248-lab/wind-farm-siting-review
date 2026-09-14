@@ -1,0 +1,7 @@
+Site,Capacity (MW),Mean hub-height wind speed (m/s),Capacity factor (%),Pearson r
+Site 1,99,6.46,23.7,0.861
+Site 2,200,7.91,40.8,0.661
+Site 3,99,5.01,22.9,0.606
+Site 4,66,5.65,32.8,0.877
+Site 5,36,4.78,26.9,0.928
+Site 6,96,8.2,35.2,0.779
